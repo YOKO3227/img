@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이미지 경로 매칭기 Pro - Fixed</title>
+    <title>이미지 경로 매칭기- Preview</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f1f5f9; font-family: 'Pretendard', sans-serif; }
@@ -18,30 +18,36 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .preview-image { max-width: 100%; max-height: 200px; border-radius: 8px; object-fit: contain; background: #eee; }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-8 text-center md:text-left">
-            <h1 class="text-3xl font-extrabold text-slate-900 mb-2">이미지 경로 매칭기 Pro</h1>
-            <p class="text-slate-500 font-medium">URL 치환 버그가 해결된 버전입니다.</p>
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-2">이미지 경로 매칭기 Pro</h1>
+                <p class="text-slate-500 font-medium">실시간 이미지 미리보기 기능 ㅠㅗ함!</p>
+            </div>
+            <div class="text-xs text-slate-400 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100 font-bold">
+                TIP: 기초 URL에 {v1}, {v2} 처럼 중괄호를 꼭 포함해 주세요.
+            </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-5 space-y-6">
+            <div class="lg:col-span-4 space-y-6">
                 <div class="card p-5 border border-slate-200">
                     <h2 class="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2">
                         <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                        변수 및 제한 설정
+                        매칭 설정
                     </h2>
                     
                     <div class="mb-6">
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">기초 URL 템플릿</label>
-                        <input type="text" id="baseUrl" placeholder="https://cdn.ai/{v1}/{v2}.png" 
-                            class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all">
+                        <input type="text" id="baseUrl" placeholder="https://example.com/img/{v1}/{v2}.jpg" 
+                            class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all font-mono">
                     </div>
                     
-                    <div id="variableContainer" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar"></div>
+                    <div id="variableContainer" class="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar"></div>
 
                     <button onclick="addVariableField()" id="addBtn" class="w-full mt-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-all border border-slate-200">
                         + 새로운 변수 추가
@@ -49,30 +55,36 @@
                     
                     <button onclick="generateUrls()" class="w-full mt-3 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        모든 경우의 수 생성하기
+                        경로 생성 및 이미지 매칭
                     </button>
                 </div>
             </div>
 
-            <div class="lg:col-span-7">
+            <div class="lg:col-span-8">
                 <div id="resultSection" class="hidden card overflow-hidden flex flex-col h-full min-h-[700px] border border-slate-200">
                     <div class="flex border-b border-slate-200 bg-slate-50">
-                        <button onclick="switchTab('tree')" id="tab-tree" class="flex-1 py-4 text-sm font-bold tab-active transition-all">폴더 구조로 보기</button>
-                        <button onclick="switchTab('raw')" id="tab-raw" class="flex-1 py-4 text-sm font-bold text-slate-400 hover:bg-white transition-all">전체 텍스트 목록</button>
+                        <button onclick="switchTab('tree')" id="tab-tree" class="flex-1 py-4 text-sm font-bold tab-active transition-all">이미지 갤러리/트리</button>
+                        <button onclick="switchTab('raw')" id="tab-raw" class="flex-1 py-4 text-sm font-bold text-slate-400 hover:bg-white transition-all">URL 텍스트 목록</button>
                     </div>
 
                     <div class="p-6 flex-1 overflow-y-auto bg-white">
                         <div id="view-tree">
-                            <div class="mb-4 flex gap-2">
-                                <button onclick="toggleAllFolders(false)" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200">전체 접기</button>
-                                <button onclick="toggleAllFolders(true)" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200">전체 펼치기</button>
+                            <div class="mb-4 flex justify-between items-center">
+                                <div class="flex gap-2">
+                                    <button onclick="toggleAllFolders(false)" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200">전체 접기</button>
+                                    <button onclick="toggleAllFolders(true)" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200">전체 펼치기</button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="autoLoadImages" class="w-4 h-4 text-indigo-600 rounded">
+                                    <label for="autoLoadImages" class="text-xs font-bold text-slate-500">이미지 자동 로드</label>
+                                </div>
                             </div>
-                            <div id="treeContainer"></div>
+                            <div id="treeContainer" class="space-y-1"></div>
                         </div>
 
                         <div id="view-raw" class="hidden">
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xs text-slate-400 font-medium">복사하여 엑셀이나 메모장에 붙여넣으세요.</span>
+                                <span class="text-xs text-slate-400 font-medium font-bold">복사하여 엑셀이나 메모장에 붙여넣으세요.</span>
                                 <button onclick="copyToClipboard()" class="text-xs bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 active:scale-95 transition-all">전체 복사하기</button>
                             </div>
                             <textarea id="resultOutput" readonly class="w-full h-[550px] p-5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px] leading-relaxed outline-none focus:border-indigo-300"></textarea>
@@ -80,19 +92,25 @@
                     </div>
                     
                     <div class="bg-indigo-50 border-t border-indigo-100 p-4 px-6 flex justify-between items-center">
-                        <span class="text-sm font-bold text-indigo-900 italic">총 매칭 경로</span>
+                        <span class="text-sm font-bold text-indigo-900 italic">총 생성된 이미지 경로</span>
                         <span id="resultCount" class="bg-indigo-600 text-white px-5 py-1 rounded-full text-sm font-black">0</span>
                     </div>
                 </div>
                 
                 <div id="emptyPlaceholder" class="card h-full min-h-[700px] flex flex-col items-center justify-center text-slate-400 p-10 text-center border-2 border-dashed border-slate-200 bg-slate-50/50 shadow-none">
                     <div class="p-6 bg-white rounded-full shadow-sm mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </div>
-                    <p class="text-lg font-bold text-slate-400 italic">왼쪽에서 설정을 마친 후 생성 버튼을 눌러주세요.</p>
+                    <p class="text-lg font-bold text-slate-400 italic">왼쪽에서 기초 URL과 변수를 설정한 후 버튼을 눌러주세요.</p>
+                    <p class="text-sm text-slate-400 mt-2">결과 화면에서 이미지를 바로 확인할 수 있습니다.</p>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- 이미지 미리보기 모달 (필요시) -->
+    <div id="imageModal" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center p-4" onclick="this.classList.add('hidden')">
+        <img id="modalImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl">
     </div>
 
     <script>
@@ -100,14 +118,10 @@
 
         function onVariableNameChange(input) {
             input.dataset.auto = 'false';
-            const oldName = input.dataset.prevValue || "";
             const newName = input.value.trim();
-            
             if (newName === "") return;
-
             const group = input.closest('.var-group');
             group.querySelectorAll('.rule-parent-display').forEach(el => el.textContent = newName);
-            
             updateAllOptionSelectors();
             input.dataset.prevValue = newName;
         }
@@ -131,11 +145,9 @@
         function updateAllOptionSelectors() {
             const allVarNames = Array.from(document.querySelectorAll('.var-name')).map(input => input.value);
             const selectors = document.querySelectorAll('.rule-target-select');
-            
             selectors.forEach(sel => {
                 const currentVal = sel.value;
                 const currentParentVar = sel.closest('.var-group').querySelector('.var-name').value;
-                
                 sel.innerHTML = '';
                 allVarNames.forEach(name => {
                     if (name !== currentParentVar) {
@@ -201,10 +213,8 @@
             const parentVar = btn.closest('.var-group').querySelector('.var-name').value;
             const div = document.createElement('div');
             div.className = 'rule-row p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-wrap items-center gap-2 text-[11px]';
-            
             const allVarNames = Array.from(document.querySelectorAll('.var-name')).map(input => input.value);
             const targetOptions = allVarNames.filter(n => n !== parentVar).map(n => `<option value="${n}">${n}</option>`).join('');
-
             div.innerHTML = `
                 <div class="flex items-center gap-1.5 w-full md:w-auto">
                     <span class="font-bold text-slate-400 italic underline">IF</span>
@@ -243,14 +253,9 @@
             parts.forEach(part => {
                 if (part.includes('-')) {
                     const [start, end] = part.split('-').map(s => s.trim());
-                    if (start && end) {
-                        results = results.concat(expandRange(start, end));
-                    } else {
-                        results.push(part);
-                    }
-                } else {
-                    results.push(part);
-                }
+                    if (start && end) results = results.concat(expandRange(start, end));
+                    else results.push(part);
+                } else results.push(part);
             });
             return [...new Set(results)];
         }
@@ -266,9 +271,7 @@
             if (start.length === end.length) {
                 const strToNum = (str) => {
                     let num = 0;
-                    for (let i = 0; i < str.length; i++) {
-                        num = num * 26 + (str.toUpperCase().charCodeAt(i) - 64);
-                    }
+                    for (let i = 0; i < str.length; i++) num = num * 26 + (str.toUpperCase().charCodeAt(i) - 64);
                     return num;
                 };
                 const numToStr = (num, length) => {
@@ -279,9 +282,7 @@
                     }
                     return str;
                 };
-                const sNum = strToNum(start);
-                const eNum = strToNum(end);
-                const res = [];
+                const sNum = strToNum(start), eNum = strToNum(end), res = [];
                 const min = Math.min(sNum, eNum), max = Math.max(sNum, eNum);
                 for (let i = min; i <= max; i++) res.push(numToStr(i, start.length));
                 return res;
@@ -318,11 +319,9 @@
                     variables.push({ name, key: `{${name}}`, values: parseRange(rawValues) });
                     const rules = group.querySelectorAll('.rule-row');
                     rules.forEach(r => {
-                        const triggerRaw = r.querySelector('.rule-trigger-val').value.trim();
-                        const triggerVals = parseRange(triggerRaw);
+                        const triggerVals = parseRange(r.querySelector('.rule-trigger-val').value.trim());
                         const targetVarName = r.querySelector('.rule-target-select').value;
-                        const affectedRaw = r.querySelector('.rule-affected-vals').value.trim();
-                        const affectedVals = parseRange(affectedRaw);
+                        const affectedVals = parseRange(r.querySelector('.rule-affected-vals').value.trim());
                         const type = r.querySelector('.rule-type').value;
                         if (triggerVals.length > 0 && targetVarName && affectedVals.length > 0) {
                             allRules.push({ parentVar: name, triggerVals, targetVar: targetVarName, affectedVals, type });
@@ -358,13 +357,10 @@
                 if (isValid) {
                     let currentUrl = baseUrlTemplate;
                     let currentNode = root;
-
                     variables.forEach((v, idx) => {
                         const val = comboArr[idx];
-                        // 정규표현식을 이용한 글로벌 치환으로 버그 수정
                         const escapedKey = v.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                         currentUrl = currentUrl.replace(new RegExp(escapedKey, 'g'), val);
-                        
                         if (!currentNode.children[val]) {
                             currentNode.children[val] = { children: {}, isLeaf: idx === variables.length - 1 };
                         }
@@ -385,7 +381,8 @@
         }
 
         function renderTree(node, container) {
-            Object.keys(node.children).sort().forEach(key => {
+            const sortedKeys = Object.keys(node.children).sort();
+            sortedKeys.forEach(key => {
                 const child = node.children[key];
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'tree-item my-1';
@@ -393,10 +390,19 @@
                 header.className = 'flex items-center gap-2 py-1.5 folder-toggle text-sm transition-all rounded px-2 hover:bg-slate-50';
                 
                 if (child.isLeaf) {
+                    const isAuto = document.getElementById('autoLoadImages').checked;
                     header.innerHTML = `
-                        <svg class="h-4 w-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        <span class="text-indigo-600 truncate font-bold text-xs">${key}</span>
-                        <a href="${child.url}" target="_blank" class="ml-auto text-[10px] font-bold text-slate-400 hover:text-indigo-600 px-2 flex items-center gap-1">열기<svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>
+                        <div class="flex flex-col w-full gap-2 py-2">
+                            <div class="flex items-center gap-2">
+                                <svg class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <span class="text-indigo-600 truncate font-bold text-xs">${key}</span>
+                                <button onclick="window.open('${child.url}', '_blank')" class="ml-auto text-[10px] font-bold text-slate-400 hover:text-indigo-600 px-2">원본보기</button>
+                            </div>
+                            <div class="preview-box ${isAuto ? '' : 'cursor-pointer'}" onclick="loadPreview(this, '${child.url}')">
+                                ${isAuto ? `<img src="${child.url}" class="preview-image shadow-sm border border-slate-100" onerror="this.parentElement.innerHTML='<span class=\'text-[10px] text-red-400\'>로드 실패 (URL을 확인해주세요)</span>'">` 
+                                         : `<div class="bg-slate-50 border border-dashed border-slate-200 rounded-lg py-3 text-center text-[10px] text-slate-400 font-bold hover:bg-indigo-50 hover:border-indigo-200">클릭하여 이미지 미리보기</div>`}
+                            </div>
+                        </div>
                     `;
                 } else {
                     header.innerHTML = `
@@ -420,6 +426,17 @@
                 }
                 container.appendChild(itemDiv);
             });
+        }
+
+        function loadPreview(container, url) {
+            if (container.querySelector('img')) {
+                // 이미 로드된 경우 큰 화면으로 보기
+                document.getElementById('modalImg').src = url;
+                document.getElementById('imageModal').classList.remove('hidden');
+                return;
+            }
+            container.innerHTML = `<img src="${url}" class="preview-image shadow-sm border border-slate-100" onerror="this.parentElement.innerHTML='<span class=\'text-[10px] text-red-400\'>로드 실패</span>'">`;
+            container.classList.remove('cursor-pointer');
         }
 
         function copyToClipboard() {
