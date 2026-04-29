@@ -46,6 +46,42 @@
         .wiki-content code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #2563eb; }
         .wiki-section { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
         .wiki-section:last-child { border-bottom: none; }
+
+        /* 모바일 트리 최적화 */
+        @media (max-width: 768px) {
+            .tree-item { margin-left: 0.5rem; padding-left: 0.5rem; }
+            .preview-box img { max-height: 120px !important; }
+            .preview-box .bg-slate-50 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        }
+
+        /* 위로 가기 버튼 */
+        #scrollTopBtn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 14px rgba(79,70,229,0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.25s, transform 0.25s;
+            pointer-events: none;
+            z-index: 50;
+        }
+        #scrollTopBtn.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        #scrollTopBtn:hover { background: #4338ca; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -55,10 +91,20 @@
                 <h1 class="text-3xl font-extrabold text-slate-900 mb-2">이미지 경로 매칭기 </h1>
                 <p class="text-slate-500 font-medium"></p>
             </div>
-            <button onclick="toggleWiki(true)" class="flex items-center gap-2 bg-white border border-slate-200 px-5 py-2.5 rounded-full shadow-sm hover:shadow-md hover:bg-slate-50 transition-all font-bold text-slate-700">
-                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                도움말
-            </button>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="saveConfig()" class="flex items-center gap-2 bg-white border border-slate-200 px-5 py-2.5 rounded-full shadow-sm hover:shadow-md hover:bg-emerald-50 hover:border-emerald-300 transition-all font-bold text-slate-700">
+                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                    저장하기
+                </button>
+                <button onclick="toggleLoad(true)" class="flex items-center gap-2 bg-white border border-slate-200 px-5 py-2.5 rounded-full shadow-sm hover:shadow-md hover:bg-amber-50 hover:border-amber-300 transition-all font-bold text-slate-700">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    불러오기
+                </button>
+                <button onclick="toggleWiki(true)" class="flex items-center gap-2 bg-white border border-slate-200 px-5 py-2.5 rounded-full shadow-sm hover:shadow-md hover:bg-slate-50 transition-all font-bold text-slate-700">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    도움말
+                </button>
+            </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -66,7 +112,7 @@
                 <div class="card p-5 border border-slate-200">
                     <h2 class="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2">
                         <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                        매칭 설정
+                        코드 설정
                     </h2>
                     
                     <div class="mb-6">
@@ -144,6 +190,30 @@
         </div>
     </div>
 
+    <!-- Load Config Modal -->
+    <div id="loadModal" class="fixed inset-0 bg-slate-900/60 hidden z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    설정 불러오기
+                </h2>
+                <button onclick="toggleLoad(false)" class="text-slate-400 hover:text-slate-600 transition-all p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-slate-500 mb-3">저장하기로 복사한 코드를 아래에 붙여넣어 주세요.</p>
+                <textarea id="loadInput" rows="8" class="w-full p-3 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-amber-400 outline-none resize-none custom-scrollbar" placeholder='{"baseUrl":"...","variables":[...],"rules":[...]}'></textarea>
+                <p id="loadError" class="text-xs text-red-500 mt-2 hidden">올바른 형식이 아닙니다. 저장하기로 복사한 코드를 그대로 붙여넣어 주세요.</p>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end">
+                <button onclick="toggleLoad(false)" class="px-6 py-2 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition-all">취소</button>
+                <button onclick="loadConfig()" class="bg-amber-500 hover:bg-amber-600 text-white px-8 py-2 rounded-xl font-bold transition-all">불러오기</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Wiki Modal -->
     <div id="wikiModal" class="fixed inset-0 bg-slate-900/60 hidden z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
@@ -160,7 +230,8 @@
                 <div class="wiki-section">
                     <h3>1. 기초 URL 설정</h3>
                     <p>이미지가 저장된 서버의 주소를 입력하세요. 변수가 들어갈 자리는 <code>{변수명}</code> 형태로 작성해야 합니다.<br>
-                    예: <code>https://api.test.com/products/{v1}/color_{v2}.png</code></p>
+                    예1: <code>https://api.test.com/products/{v1}/{v2}.png</code><br>
+예2: <code>https://api.test.com/products/{v1}{v2}.png</code></p>
                 </div>
                 <div class="wiki-section">
                     <h3>2. 변수 데이터 및 범위 지정</h3>
@@ -201,12 +272,103 @@
         <p id="modalLabel" class="text-white font-mono text-sm bg-black/50 px-4 py-2 rounded-full"></p>
     </div>
 
+    <button id="scrollTopBtn" onclick="scrollToTop()" title="위로 가기">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+    </button>
+
     <script>
         const maxVars = 10;
         let generatedUrls = [];
 
         function toggleWiki(show) {
             document.getElementById('wikiModal').classList.toggle('hidden', !show);
+        }
+
+        function toggleLoad(show) {
+            document.getElementById('loadModal').classList.toggle('hidden', !show);
+            if (show) {
+                document.getElementById('loadInput').value = '';
+                document.getElementById('loadError').classList.add('hidden');
+            }
+        }
+
+        function saveConfig() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const variables = [];
+            document.querySelectorAll('.var-group').forEach(group => {
+                const name = group.querySelector('.var-name').value.trim();
+                const values = group.querySelector('.var-values').value.trim();
+                const isAuto = group.querySelector('.var-name').dataset.auto === 'true';
+                const rules = [];
+                group.querySelectorAll('.rule-row').forEach(r => {
+                    rules.push({
+                        triggerVal: r.querySelector('.rule-trigger-val').value.trim(),
+                        targetVar: r.querySelector('.rule-target-select').value,
+                        affectedVals: r.querySelector('.rule-affected-vals').value.trim(),
+                        type: r.querySelector('.rule-type').value
+                    });
+                });
+                variables.push({ name, values, isAuto, rules });
+            });
+            const config = JSON.stringify({ baseUrl, variables });
+            navigator.clipboard.writeText(config).then(() => {
+                const btn = document.querySelector('[onclick="saveConfig()"]');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 복사 완료!';
+                setTimeout(() => btn.innerHTML = orig, 2000);
+            });
+        }
+
+        function loadConfig() {
+            const raw = document.getElementById('loadInput').value.trim();
+            const errEl = document.getElementById('loadError');
+            errEl.classList.add('hidden');
+            let config;
+            try { config = JSON.parse(raw); } catch { errEl.classList.remove('hidden'); return; }
+            if (!config.baseUrl || !Array.isArray(config.variables)) { errEl.classList.remove('hidden'); return; }
+
+            // baseUrl 복원
+            document.getElementById('baseUrl').value = config.baseUrl;
+
+            // 변수 컨테이너 초기화 후 복원
+            const container = document.getElementById('variableContainer');
+            container.innerHTML = '';
+            config.variables.forEach((v, idx) => {
+                addVariableField();
+                const group = container.children[idx];
+                const nameInput = group.querySelector('.var-name');
+                nameInput.value = v.name;
+                nameInput.dataset.auto = v.isAuto ? 'true' : 'false';
+                group.querySelector('.var-values').value = v.values;
+                // 규칙 복원
+                if (v.rules && v.rules.length > 0) {
+                    // 옵션 패널 열기
+                    const toggleBtn = group.querySelector('[onclick="toggleOptions(this)"]');
+                    toggleOptions(toggleBtn);
+                    v.rules.forEach(rule => {
+                        const addRuleBtn = group.querySelector('[onclick="addRule(this)"]');
+                        addRule(addRuleBtn);
+                        const rows = group.querySelectorAll('.rule-row');
+                        const row = rows[rows.length - 1];
+                        row.querySelector('.rule-trigger-val').value = rule.triggerVal;
+                        row.querySelector('.rule-affected-vals').value = rule.affectedVals;
+                        row.querySelector('.rule-type').value = rule.type;
+                        // targetVar는 옵션이 갱신된 후 세팅
+                        row.querySelector('.rule-target-select').value = rule.targetVar;
+                    });
+                }
+            });
+            updateVarNumbers();
+            updateAllOptionSelectors();
+            // targetVar 재적용 (옵션 갱신 후)
+            config.variables.forEach((v, idx) => {
+                const group = container.children[idx];
+                v.rules && v.rules.forEach((rule, rIdx) => {
+                    const rows = group.querySelectorAll('.rule-row');
+                    if (rows[rIdx]) rows[rIdx].querySelector('.rule-target-select').value = rule.targetVar;
+                });
+            });
+            toggleLoad(false);
         }
 
         function onVariableNameChange(input) {
@@ -308,14 +470,14 @@
                 <div class="flex items-center gap-1.5">
                     <span class="font-bold text-slate-400 italic">IF</span>
                     <span class="rule-parent-display font-bold text-slate-700">${parentVar}</span>
-                    <input type="text" class="rule-trigger-val p-1 border rounded w-16 text-center" placeholder="값">
+                    <input type="text" class="rule-trigger-val p-1 border rounded w-16 text-center" placeholder="값(A,B)/범위(A-B)">
                     <span class="font-bold">일 때,</span>
                 </div>
                 <div class="flex items-center gap-1.5">
                     <select class="rule-target-select p-1 border rounded font-bold text-blue-600">
                         ${targetOptions}
                     </select>
-                    <input type="text" class="rule-affected-vals p-1 border rounded w-16" placeholder="값">
+                    <input type="text" class="rule-affected-vals p-1 border rounded w-16" placeholder="값(A,B)/범위(A-B)">
                     <select class="rule-type p-1 border rounded font-bold">
                         <option value="exclude">제외</option>
                         <option value="only">만 선택</option>
@@ -491,9 +653,10 @@
             generatedUrls.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'gallery-item';
-                div.innerHTML = `<img src="${item.url}" loading="lazy" onclick="showFullImage('${item.url}', '${item.label}')" onerror="this.src='https://via.placeholder.com/150x150?text=Load+Fail'"><div class="label truncate">${item.label}</div>`;
+                div.innerHTML = `<img data-src="${item.url}" onclick="showFullImage('${item.url}', '${item.label}')" onerror="this.src='https://via.placeholder.com/150x150?text=Load+Fail'"><div class="label truncate">${item.label}</div>`;
                 galleryContainer.appendChild(div);
             });
+            initGalleryObserver();
         }
 
         function renderTree(node, container) {
@@ -548,7 +711,51 @@
             });
         }
 
-        window.onload = () => { addVariableField(); addVariableField(); };
+        let galleryObserver = null;
+        function initGalleryObserver() {
+            if (galleryObserver) galleryObserver.disconnect();
+            // 갤러리가 들어있는 실제 스크롤 컨테이너를 root로 지정
+            const scrollRoot = document.querySelector('#resultSection .overflow-y-auto');
+            galleryObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            delete img.dataset.src;
+                            galleryObserver.unobserve(img);
+                        }
+                    }
+                });
+            }, { root: scrollRoot, rootMargin: '300px' });
+            document.querySelectorAll('#galleryContainer img[data-src]').forEach(img => {
+                galleryObserver.observe(img);
+            });
+        }
+
+        function scrollToTop() {
+            const scrollEl = document.querySelector('#resultSection .overflow-y-auto');
+            if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setupScrollTopBtn() {
+            const btn = document.getElementById('scrollTopBtn');
+            const showBtn = () => {
+                const innerScroll = document.querySelector('#resultSection .overflow-y-auto');
+                const innerScrolled = innerScroll ? innerScroll.scrollTop > 200 : false;
+                btn.classList.toggle('visible', window.scrollY > 200 || innerScrolled);
+            };
+            window.addEventListener('scroll', showBtn);
+            // 내부 스크롤 컨테이너 감지 (이벤트 캡처링)
+            document.addEventListener('scroll', showBtn, true);
+        }
+
+        window.onload = () => {
+            addVariableField();
+            addVariableField();
+            setupScrollTopBtn();
+        };
     </script>
 </body>
 </html>
