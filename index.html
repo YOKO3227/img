@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이미지 경로 매칭기- Preview</title>
+    <title>이미지 경로 매칭기 Pro - Wiki Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f1f5f9; font-family: 'Pretendard', sans-serif; }
@@ -18,19 +18,47 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .preview-image { max-width: 100%; max-height: 200px; border-radius: 8px; object-fit: contain; background: #eee; }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        .gallery-item {
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+        .gallery-item .label {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.6); color: white; font-size: 10px;
+            padding: 4px; text-align: center; backdrop-filter: blur(2px);
+        }
+
+        /* Wiki Styles */
+        .wiki-content h3 { border-left: 4px solid #3b82f6; padding-left: 8px; margin-bottom: 12px; font-weight: 800; color: #1e293b; }
+        .wiki-content p { margin-bottom: 16px; font-size: 14px; line-height: 1.6; color: #475569; }
+        .wiki-content code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #2563eb; }
+        .wiki-section { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+        .wiki-section:last-child { border-bottom: none; }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
-        <header class="mb-8 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 mb-2">이미지 경로 매칭기 Pro</h1>
-                <p class="text-slate-500 font-medium">실시간 이미지 미리보기 기능 ㅠㅗ함!</p>
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-2">이미지 경로 매칭기 </h1>
+                <p class="text-slate-500 font-medium"></p>
             </div>
-            <div class="text-xs text-slate-400 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100 font-bold">
-                TIP: 기초 URL에 {v1}, {v2} 처럼 중괄호를 꼭 포함해 주세요.
-            </div>
+            <button onclick="toggleWiki(true)" class="flex items-center gap-2 bg-white border border-slate-200 px-5 py-2.5 rounded-full shadow-sm hover:shadow-md hover:bg-slate-50 transition-all font-bold text-slate-700">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                도움말
+            </button>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -55,7 +83,7 @@
                     
                     <button onclick="generateUrls()" class="w-full mt-3 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        경로 생성 및 이미지 매칭
+                        이미지 불러오기
                     </button>
                 </div>
             </div>
@@ -63,11 +91,11 @@
             <div class="lg:col-span-8">
                 <div id="resultSection" class="hidden card overflow-hidden flex flex-col h-full min-h-[700px] border border-slate-200">
                     <div class="flex border-b border-slate-200 bg-slate-50">
-                        <button onclick="switchTab('tree')" id="tab-tree" class="flex-1 py-4 text-sm font-bold tab-active transition-all">이미지 갤러리/트리</button>
-                        <button onclick="switchTab('raw')" id="tab-raw" class="flex-1 py-4 text-sm font-bold text-slate-400 hover:bg-white transition-all">URL 텍스트 목록</button>
+                        <button onclick="switchTab('tree')" id="tab-tree" class="flex-1 py-4 text-sm font-bold tab-active transition-all">트리 구조 뷰</button>
+                        <button onclick="switchTab('gallery')" id="tab-gallery" class="flex-1 py-4 text-sm font-bold text-slate-400 hover:bg-white transition-all">전체 이미지 갤러리</button>
                     </div>
 
-                    <div class="p-6 flex-1 overflow-y-auto bg-white">
+                    <div class="p-6 flex-1 overflow-y-auto bg-white custom-scrollbar">
                         <div id="view-tree">
                             <div class="mb-4 flex justify-between items-center">
                                 <div class="flex gap-2">
@@ -82,18 +110,27 @@
                             <div id="treeContainer" class="space-y-1"></div>
                         </div>
 
-                        <div id="view-raw" class="hidden">
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-xs text-slate-400 font-medium font-bold">복사하여 엑셀이나 메모장에 붙여넣으세요.</span>
-                                <button onclick="copyToClipboard()" class="text-xs bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 active:scale-95 transition-all">전체 복사하기</button>
+                        <div id="view-gallery" class="hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-700">전체 매칭 이미지</h3>
+                                    <p class="text-[11px] text-slate-400">생성된 모든 경로의 이미지를 격자 형태로 보여줍니다.</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-500 font-bold">이미지 크기:</span>
+                                    <input type="range" min="80" max="400" value="150" class="w-24 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="updateGallerySize(this.value)">
+                                </div>
                             </div>
-                            <textarea id="resultOutput" readonly class="w-full h-[550px] p-5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px] leading-relaxed outline-none focus:border-indigo-300"></textarea>
+                            <div id="galleryContainer" class="gallery-grid"></div>
                         </div>
                     </div>
                     
                     <div class="bg-indigo-50 border-t border-indigo-100 p-4 px-6 flex justify-between items-center">
-                        <span class="text-sm font-bold text-indigo-900 italic">총 생성된 이미지 경로</span>
-                        <span id="resultCount" class="bg-indigo-600 text-white px-5 py-1 rounded-full text-sm font-black">0</span>
+                        <div class="flex gap-4 items-center">
+                            <span class="text-sm font-bold text-indigo-900 italic">총 결과 수</span>
+                            <span id="resultCount" class="bg-indigo-600 text-white px-5 py-1 rounded-full text-sm font-black">0</span>
+                        </div>
+                        <button onclick="copyAllUrls()" class="text-xs font-bold text-indigo-600 hover:underline">모든 URL 주소 복사</button>
                     </div>
                 </div>
                 
@@ -101,20 +138,76 @@
                     <div class="p-6 bg-white rounded-full shadow-sm mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </div>
-                    <p class="text-lg font-bold text-slate-400 italic">왼쪽에서 기초 URL과 변수를 설정한 후 버튼을 눌러주세요.</p>
-                    <p class="text-sm text-slate-400 mt-2">결과 화면에서 이미지를 바로 확인할 수 있습니다.</p>
+                    <p class="text-lg font-bold text-slate-400 italic">데이터를 입력하고 '이미지 불러오기'를 눌러주세요.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 이미지 미리보기 모달 (필요시) -->
-    <div id="imageModal" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center p-4" onclick="this.classList.add('hidden')">
-        <img id="modalImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl">
+    <!-- Wiki Modal -->
+    <div id="wikiModal" class="fixed inset-0 bg-slate-900/60 hidden z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.903 7.903 0 0111 4c1.226 0 2.378.276 3.408.766L15 4.394V16.39l-1.592-.796A7.902 7.902 0 0011 15c-1.226 0-2.378.276-3.408.766L6 16.39V4.394l1.592.796A7.903 7.903 0 019 4.804z"></path></svg>
+                    사용자 가이드 Wiki
+                </h2>
+                <button onclick="toggleWiki(false)" class="text-slate-400 hover:text-slate-600 transition-all p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-8 overflow-y-auto wiki-content custom-scrollbar">
+                <div class="wiki-section">
+                    <h3>1. 기초 URL 설정</h3>
+                    <p>이미지가 저장된 서버의 주소를 입력하세요. 변수가 들어갈 자리는 <code>{변수명}</code> 형태로 작성해야 합니다.<br>
+                    예: <code>https://api.test.com/products/{v1}/color_{v2}.png</code></p>
+                </div>
+                <div class="wiki-section">
+                    <h3>2. 변수 데이터 및 범위 지정</h3>
+                    <p>콤마(<code>,</code>)를 통해 개별 값을 입력하거나 대시(<code>-</code>)를 사용해 범위를 지정할 수 있습니다.</p>
+                    <ul class="list-disc ml-5 space-y-2 text-sm text-slate-600 mb-4">
+                        <li>숫자 범위: <code>01-10</code> 입력 시 01, 02, ..., 10 생성</li>
+                        <li>단일 문자 범위: <code>A-C</code> 입력 시 A, B, C 생성</li>
+                        <li>복수 문자 범위: <code>AA-AC</code> 입력 시 AA, AB, AC 생성</li>
+                        <li>혼합 범위: <code>A1-A3</code> 입력 시 A1, A2, A3 생성</li>
+                    </ul>
+                </div>
+                <div class="wiki-section">
+                    <h3>3. 조건부 제한 (IF 규칙)</h3>
+                    <p>특정 상황에서만 값이 나타나거나 사라지게 할 수 있습니다.</p>
+                    <ul class="list-disc ml-5 space-y-2 text-sm text-slate-600">
+                        <li><code>제외</code>: 특정 조건일 때 대상 값을 목록에서 뺍니다.</li>
+                        <li><code>만 선택</code>: 특정 조건일 때 오직 그 값들만 노출합니다.</li>
+                    </ul>
+                </div>
+                <div class="wiki-section">
+                    <h3>4. 뷰 모드 활용</h3>
+                    <p>생성된 결과는 두 가지 방식으로 확인 가능합니다.</p>
+                    <ul class="list-disc ml-5 space-y-2 text-sm text-slate-600">
+                        <li><strong>트리 구조 뷰:</strong> 폴더별로 이미지를 계층적으로 탐색할 때 유용합니다.</li>
+                        <li><strong>갤러리 뷰:</strong> 모든 조합의 이미지를 한눈에 바둑판식으로 볼 때 유용합니다.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 text-center">
+                <button onclick="toggleWiki(false)" class="bg-indigo-600 text-white px-8 py-2 rounded-xl font-bold hover:bg-indigo-700 transition-all">확인했습니다</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black/90 hidden z-[70] flex flex-col items-center justify-center p-4" onclick="this.classList.add('hidden')">
+        <img id="modalImg" src="" class="max-w-full max-h-[85vh] rounded shadow-2xl mb-4">
+        <p id="modalLabel" class="text-white font-mono text-sm bg-black/50 px-4 py-2 rounded-full"></p>
     </div>
 
     <script>
         const maxVars = 10;
+        let generatedUrls = [];
+
+        function toggleWiki(show) {
+            document.getElementById('wikiModal').classList.toggle('hidden', !show);
+        }
 
         function onVariableNameChange(input) {
             input.dataset.auto = 'false';
@@ -123,7 +216,6 @@
             const group = input.closest('.var-group');
             group.querySelectorAll('.rule-parent-display').forEach(el => el.textContent = newName);
             updateAllOptionSelectors();
-            input.dataset.prevValue = newName;
         }
 
         function updateVarNumbers() {
@@ -134,7 +226,6 @@
                 const label = group.querySelector('.var-label');
                 if (nameInput.dataset.auto === "true") {
                     nameInput.value = `v${newNum}`;
-                    nameInput.dataset.prevValue = `v${newNum}`;
                 }
                 label.textContent = `변수 ${newNum}`;
                 group.querySelectorAll('.rule-parent-display').forEach(el => el.textContent = nameInput.value);
@@ -175,24 +266,22 @@
                     <div class="flex items-center gap-3">
                         <span class="var-label text-[10px] font-black text-slate-400 uppercase bg-slate-100 px-2 py-0.5 rounded">변수 ${nextNum}</span>
                         <input type="text" class="var-name font-black text-sm text-blue-600 bg-transparent border-none focus:ring-0 w-24 p-0" 
-                               value="${defaultName}" data-auto="true" data-prev-value="${defaultName}" oninput="onVariableNameChange(this)">
+                               value="${defaultName}" data-auto="true" oninput="onVariableNameChange(this)">
                     </div>
                     <button onclick="this.closest('.var-group').remove(); updateVarNumbers(); updateAddButton();" class="text-slate-300 hover:text-red-500 transition-colors p-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
-                <input type="text" class="var-values w-full p-2.5 border border-slate-200 rounded-xl text-sm mb-3 focus:border-blue-400 outline-none" placeholder="매칭 데이터 입력 (예: A, B, 01-10)">
+                <input type="text" class="var-values w-full p-2.5 border border-slate-200 rounded-xl text-sm mb-3 focus:border-blue-400 outline-none font-mono" placeholder="데이터 입력 (예: A, B, 01-10)">
                 
                 <div class="pt-2 border-t border-slate-100">
                     <button onclick="toggleOptions(this)" class="text-[11px] font-bold text-slate-500 flex items-center gap-1 hover:text-indigo-600 transition-all">
                         <svg class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        제한 옵션 설정 (IF)
+                        제한 옵션 (IF)
                     </button>
                     <div class="options-panel hidden mt-3 space-y-2">
                         <div class="rules-list space-y-2"></div>
-                        <button onclick="addRule(this)" class="w-full py-2 border-2 border-dashed border-slate-200 rounded-lg text-[10px] font-bold text-slate-400 hover:border-indigo-300 hover:text-indigo-500 transition-all">
-                            + 새로운 제한 규칙 추가
-                        </button>
+                        <button onclick="addRule(this)" class="w-full py-2 border-2 border-dashed border-slate-200 rounded-lg text-[10px] font-bold text-slate-400 hover:border-indigo-300 transition-all">+ 규칙 추가</button>
                     </div>
                 </div>
             `;
@@ -216,26 +305,22 @@
             const allVarNames = Array.from(document.querySelectorAll('.var-name')).map(input => input.value);
             const targetOptions = allVarNames.filter(n => n !== parentVar).map(n => `<option value="${n}">${n}</option>`).join('');
             div.innerHTML = `
-                <div class="flex items-center gap-1.5 w-full md:w-auto">
-                    <span class="font-bold text-slate-400 italic underline">IF</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-slate-400 italic">IF</span>
                     <span class="rule-parent-display font-bold text-slate-700">${parentVar}</span>
-                    <span class="font-bold text-slate-700">이</span>
-                    <input type="text" class="rule-trigger-val p-1 border rounded w-24 text-center outline-none focus:border-blue-400" placeholder="값(A,B)/범위">
-                    <span class="font-bold text-slate-700">일 때,</span>
+                    <input type="text" class="rule-trigger-val p-1 border rounded w-16 text-center" placeholder="값">
+                    <span class="font-bold">일 때,</span>
                 </div>
-                <div class="flex items-center gap-1.5 w-full md:w-auto">
-                    <select class="rule-target-select p-1 border rounded font-bold text-blue-600 bg-white">
+                <div class="flex items-center gap-1.5">
+                    <select class="rule-target-select p-1 border rounded font-bold text-blue-600">
                         ${targetOptions}
                     </select>
-                    <span class="font-bold text-slate-700">의</span>
-                    <input type="text" class="rule-affected-vals p-1 border rounded w-24 outline-none focus:border-blue-400" placeholder="값/범위">
-                    <select class="rule-type p-1 border rounded font-bold bg-white">
+                    <input type="text" class="rule-affected-vals p-1 border rounded w-16" placeholder="값">
+                    <select class="rule-type p-1 border rounded font-bold">
                         <option value="exclude">제외</option>
                         <option value="only">만 선택</option>
                     </select>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-slate-300 hover:text-red-500 ml-auto">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
-                    </button>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-slate-300 hover:text-red-500">×</button>
                 </div>
             `;
             list.appendChild(div);
@@ -252,39 +337,70 @@
             let results = [];
             parts.forEach(part => {
                 if (part.includes('-')) {
-                    const [start, end] = part.split('-').map(s => s.trim());
-                    if (start && end) results = results.concat(expandRange(start, end));
-                    else results.push(part);
-                } else results.push(part);
+                    const rangeParts = part.split('-');
+                    if (rangeParts.length === 2) {
+                        const start = rangeParts[0].trim();
+                        const end = rangeParts[1].trim();
+                        results = results.concat(expandAdvancedRange(start, end));
+                    } else {
+                        results.push(part);
+                    }
+                } else {
+                    results.push(part);
+                }
             });
             return [...new Set(results)];
         }
 
-        function expandRange(start, end) {
+        function expandAdvancedRange(start, end) {
             const isNumeric = (str) => /^\d+$/.test(str);
             if (isNumeric(start) && isNumeric(end)) {
-                const s = parseInt(start), e = parseInt(end), res = [], padLen = start.length;
-                const min = Math.min(s, e), max = Math.max(s, e);
-                for (let i = min; i <= max; i++) res.push(i.toString().padStart(padLen, '0'));
+                const s = parseInt(start, 10);
+                const e = parseInt(end, 10);
+                const res = [];
+                const padLen = start.length;
+                const step = s <= e ? 1 : -1;
+                for (let i = s; (step > 0 ? i <= e : i >= e); i += step) {
+                    res.push(i.toString().padStart(padLen, '0'));
+                }
                 return res;
             }
-            if (start.length === end.length) {
-                const strToNum = (str) => {
+            const regex = /^(.*?)(\d+)$/;
+            const matchStart = start.match(regex);
+            const matchEnd = end.match(regex);
+            if (matchStart && matchEnd && matchStart[1] === matchEnd[1]) {
+                const prefix = matchStart[1];
+                const sNum = parseInt(matchStart[2], 10);
+                const eNum = parseInt(matchEnd[2], 10);
+                const padLen = matchStart[2].length;
+                const res = [];
+                const step = sNum <= eNum ? 1 : -1;
+                for (let i = sNum; (step > 0 ? i <= eNum : i >= eNum); i += step) {
+                    res.push(prefix + i.toString().padStart(padLen, '0'));
+                }
+                return res;
+            }
+            if (!/\d/.test(start) && !/\d/.test(end)) {
+                const strToNum = (s) => {
                     let num = 0;
-                    for (let i = 0; i < str.length; i++) num = num * 26 + (str.toUpperCase().charCodeAt(i) - 64);
+                    for (let i = 0; i < s.length; i++) num = num * 26 + (s.toUpperCase().charCodeAt(i) - 64);
                     return num;
                 };
-                const numToStr = (num, length) => {
-                    let str = "";
-                    for (let i = 0; i < length; i++) {
-                        str = String.fromCharCode(((num - 1) % 26) + 65) + str;
-                        num = Math.floor((num - 1) / 26);
+                const numToStr = (n) => {
+                    let s = "";
+                    while (n > 0) {
+                        let rem = n % 26;
+                        if (rem === 0) { rem = 26; n -= 1; }
+                        s = String.fromCharCode(rem + 64) + s;
+                        n = Math.floor(n / 26);
                     }
-                    return str;
+                    return s;
                 };
-                const sNum = strToNum(start), eNum = strToNum(end), res = [];
-                const min = Math.min(sNum, eNum), max = Math.max(sNum, eNum);
-                for (let i = min; i <= max; i++) res.push(numToStr(i, start.length));
+                const sVal = strToNum(start);
+                const eVal = strToNum(end);
+                const res = [];
+                const step = sVal <= eVal ? 1 : -1;
+                for (let i = sVal; (step > 0 ? i <= eVal : i >= eVal); i += step) res.push(numToStr(i));
                 return res;
             }
             return [start, end];
@@ -292,9 +408,14 @@
 
         function switchTab(type) {
             document.getElementById('tab-tree').className = type === 'tree' ? 'flex-1 py-4 text-sm font-bold tab-active bg-white' : 'flex-1 py-4 text-sm font-bold text-slate-400 hover:bg-white';
-            document.getElementById('tab-raw').className = type === 'raw' ? 'flex-1 py-4 text-sm font-bold tab-active bg-white' : 'flex-1 py-4 text-sm font-bold text-slate-400 hover:bg-white';
+            document.getElementById('tab-gallery').className = type === 'gallery' ? 'flex-1 py-4 text-sm font-bold tab-active bg-white' : 'flex-1 py-4 text-sm font-bold text-slate-400 hover:bg-white';
             document.getElementById('view-tree').classList.toggle('hidden', type !== 'tree');
-            document.getElementById('view-raw').classList.toggle('hidden', type !== 'raw');
+            document.getElementById('view-gallery').classList.toggle('hidden', type !== 'gallery');
+        }
+
+        function updateGallerySize(val) {
+            const container = document.getElementById('galleryContainer');
+            container.style.gridTemplateColumns = `repeat(auto-fill, minmax(${val}px, 1fr))`;
         }
 
         function toggleAllFolders(expand) {
@@ -305,45 +426,38 @@
         }
 
         function generateUrls() {
-            const baseUrlTemplate = document.getElementById('baseUrl').value;
-            const groups = document.querySelectorAll('.var-group');
+            const baseUrlTemplate = document.getElementById('baseUrl').value.trim();
             if (!baseUrlTemplate) { alert("기초 URL을 입력해주세요."); return; }
-
             const variables = [];
             const allRules = [];
-
-            groups.forEach((group) => {
+            document.querySelectorAll('.var-group').forEach(group => {
                 const name = group.querySelector('.var-name').value.trim();
-                const rawValues = group.querySelector('.var-values').value.trim();
-                if (name && rawValues) {
-                    variables.push({ name, key: `{${name}}`, values: parseRange(rawValues) });
-                    const rules = group.querySelectorAll('.rule-row');
-                    rules.forEach(r => {
-                        const triggerVals = parseRange(r.querySelector('.rule-trigger-val').value.trim());
-                        const targetVarName = r.querySelector('.rule-target-select').value;
-                        const affectedVals = parseRange(r.querySelector('.rule-affected-vals').value.trim());
-                        const type = r.querySelector('.rule-type').value;
-                        if (triggerVals.length > 0 && targetVarName && affectedVals.length > 0) {
-                            allRules.push({ parentVar: name, triggerVals, targetVar: targetVarName, affectedVals, type });
-                        }
+                const values = parseRange(group.querySelector('.var-values').value.trim());
+                if (name && values.length > 0) {
+                    variables.push({ name, key: `{${name}}`, values });
+                    group.querySelectorAll('.rule-row').forEach(r => {
+                        allRules.push({
+                            parentVar: name,
+                            triggerVals: parseRange(r.querySelector('.rule-trigger-val').value.trim()),
+                            targetVar: r.querySelector('.rule-target-select').value,
+                            affectedVals: parseRange(r.querySelector('.rule-affected-vals').value.trim()),
+                            type: r.querySelector('.rule-type').value
+                        });
                     });
                 }
             });
-
             if (variables.length === 0) { alert("변수와 데이터를 입력해주세요."); return; }
 
             const cartesian = (arrays) => arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
             const valueArrays = variables.map(v => v.values);
             const rawCombinations = valueArrays.length > 1 ? cartesian(valueArrays) : valueArrays[0].map(v => [v]);
 
-            const fullList = [];
+            generatedUrls = [];
             const root = { children: {} };
-
             rawCombinations.forEach(combo => {
                 const comboArr = Array.isArray(combo) ? combo : [combo];
                 const comboMap = {};
                 variables.forEach((v, idx) => comboMap[v.name] = comboArr[idx]);
-
                 let isValid = true;
                 for (const rule of allRules) {
                     if (rule.triggerVals.includes(comboMap[rule.parentVar])) {
@@ -353,63 +467,48 @@
                         }
                     }
                 }
-
                 if (isValid) {
-                    let currentUrl = baseUrlTemplate;
+                    let url = baseUrlTemplate;
                     let currentNode = root;
                     variables.forEach((v, idx) => {
                         const val = comboArr[idx];
-                        const escapedKey = v.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                        currentUrl = currentUrl.replace(new RegExp(escapedKey, 'g'), val);
-                        if (!currentNode.children[val]) {
-                            currentNode.children[val] = { children: {}, isLeaf: idx === variables.length - 1 };
-                        }
+                        url = url.split(v.key).join(val);
+                        if (!currentNode.children[val]) currentNode.children[val] = { children: {}, isLeaf: idx === variables.length - 1 };
                         currentNode = currentNode.children[val];
-                        if (currentNode.isLeaf) currentNode.url = currentUrl;
+                        if (currentNode.isLeaf) currentNode.url = url;
                     });
-                    fullList.push(currentUrl);
+                    generatedUrls.push({ url, label: comboArr.join(' / ') });
                 }
             });
-
             document.getElementById('emptyPlaceholder').classList.add('hidden');
             document.getElementById('resultSection').classList.remove('hidden');
-            document.getElementById('resultCount').textContent = fullList.length.toLocaleString();
-            document.getElementById('resultOutput').value = fullList.join('\n');
+            document.getElementById('resultCount').textContent = generatedUrls.length.toLocaleString();
             const treeContainer = document.getElementById('treeContainer');
             treeContainer.innerHTML = '';
             renderTree(root, treeContainer);
+            const galleryContainer = document.getElementById('galleryContainer');
+            galleryContainer.innerHTML = '';
+            generatedUrls.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                div.innerHTML = `<img src="${item.url}" loading="lazy" onclick="showFullImage('${item.url}', '${item.label}')" onerror="this.src='https://via.placeholder.com/150x150?text=Load+Fail'"><div class="label truncate">${item.label}</div>`;
+                galleryContainer.appendChild(div);
+            });
         }
 
         function renderTree(node, container) {
-            const sortedKeys = Object.keys(node.children).sort();
-            sortedKeys.forEach(key => {
+            Object.keys(node.children).sort().forEach(key => {
                 const child = node.children[key];
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'tree-item my-1';
                 const header = document.createElement('div');
-                header.className = 'flex items-center gap-2 py-1.5 folder-toggle text-sm transition-all rounded px-2 hover:bg-slate-50';
-                
+                header.className = 'flex items-center gap-2 py-1.5 folder-toggle text-sm rounded px-2 hover:bg-slate-50';
                 if (child.isLeaf) {
                     const isAuto = document.getElementById('autoLoadImages').checked;
-                    header.innerHTML = `
-                        <div class="flex flex-col w-full gap-2 py-2">
-                            <div class="flex items-center gap-2">
-                                <svg class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                <span class="text-indigo-600 truncate font-bold text-xs">${key}</span>
-                                <button onclick="window.open('${child.url}', '_blank')" class="ml-auto text-[10px] font-bold text-slate-400 hover:text-indigo-600 px-2">원본보기</button>
-                            </div>
-                            <div class="preview-box ${isAuto ? '' : 'cursor-pointer'}" onclick="loadPreview(this, '${child.url}')">
-                                ${isAuto ? `<img src="${child.url}" class="preview-image shadow-sm border border-slate-100" onerror="this.parentElement.innerHTML='<span class=\'text-[10px] text-red-400\'>로드 실패 (URL을 확인해주세요)</span>'">` 
-                                         : `<div class="bg-slate-50 border border-dashed border-slate-200 rounded-lg py-3 text-center text-[10px] text-slate-400 font-bold hover:bg-indigo-50 hover:border-indigo-200">클릭하여 이미지 미리보기</div>`}
-                            </div>
-                        </div>
-                    `;
+                    // 트리 뷰 미리보기 크기를 max-h-32에서 max-h-64로 2배 확대
+                    header.innerHTML = `<div class="flex flex-col w-full gap-2 py-1"><div class="flex items-center gap-2"><span class="text-indigo-600 font-bold text-xs">● ${key}</span></div><div class="preview-box ${isAuto ? '' : 'cursor-pointer'}" onclick="loadPreview(this, '${child.url}')">${isAuto ? `<img src="${child.url}" class="max-h-64 rounded border shadow-sm">` : `<div class="bg-slate-50 border border-dashed rounded py-4 text-center text-[10px] text-slate-400">이미지 보기</div>`}</div></div>`;
                 } else {
-                    header.innerHTML = `
-                        <svg class="folder-icon h-4 w-4 text-amber-400 transition-transform" style="transform: rotate(-90deg)" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                        <span class="font-bold text-slate-700">${key}</span>
-                        <span class="text-[10px] font-black text-indigo-400 bg-indigo-50 px-2 py-0.5 rounded-full ml-1">${Object.keys(child.children).length}</span>
-                    `;
+                    header.innerHTML = `<svg class="folder-icon h-4 w-4 text-amber-400 transition-transform" style="transform: rotate(-90deg)" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg><span class="font-bold text-slate-700">${key}</span>`;
                     header.onclick = () => {
                         const content = itemDiv.querySelector('.tree-content');
                         const icon = header.querySelector('.folder-icon');
@@ -429,34 +528,27 @@
         }
 
         function loadPreview(container, url) {
-            if (container.querySelector('img')) {
-                // 이미 로드된 경우 큰 화면으로 보기
-                document.getElementById('modalImg').src = url;
-                document.getElementById('imageModal').classList.remove('hidden');
-                return;
-            }
-            container.innerHTML = `<img src="${url}" class="preview-image shadow-sm border border-slate-100" onerror="this.parentElement.innerHTML='<span class=\'text-[10px] text-red-400\'>로드 실패</span>'">`;
-            container.classList.remove('cursor-pointer');
+            if (container.querySelector('img')) { showFullImage(url, '미리보기'); return; }
+            // 불러온 후에도 큰 사이즈 유지
+            container.innerHTML = `<img src="${url}" class="max-h-64 rounded border shadow-sm" onerror="this.parentElement.innerHTML='<span class=\'text-[10px] text-red-400\'>로드 실패</span>'">`;
         }
 
-        function copyToClipboard() {
-            const copyText = document.getElementById("resultOutput");
-            copyText.select();
-            document.execCommand("copy");
-            const btn = document.querySelector('[onclick="copyToClipboard()"]');
-            const originalText = btn.textContent;
-            btn.textContent = "복사되었습니다!";
-            btn.classList.replace('bg-indigo-600', 'bg-green-600');
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.classList.replace('bg-green-600', 'bg-indigo-600');
-            }, 2000);
+        function showFullImage(url, label) {
+            document.getElementById('modalImg').src = url;
+            document.getElementById('modalLabel').textContent = label;
+            document.getElementById('imageModal').classList.remove('hidden');
         }
 
-        window.onload = () => { 
-            addVariableField(); 
-            addVariableField(); 
-        };
+        function copyAllUrls() {
+            const urls = generatedUrls.map(i => i.url).join('\n');
+            navigator.clipboard.writeText(urls).then(() => {
+                const btn = document.querySelector('[onclick="copyAllUrls()"]');
+                btn.textContent = "복사 완료!";
+                setTimeout(() => btn.textContent = "모든 URL 주소 복사", 2000);
+            });
+        }
+
+        window.onload = () => { addVariableField(); addVariableField(); };
     </script>
 </body>
 </html>
