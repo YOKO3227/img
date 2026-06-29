@@ -176,7 +176,11 @@
                             <span class="text-sm font-bold text-indigo-900 italic">총 결과 수</span>
                             <span id="resultCount" class="bg-indigo-600 text-white px-5 py-1 rounded-full text-sm font-black">0</span>
                         </div>
-                        <button onclick="copyAllUrls()" class="text-xs font-bold text-indigo-600 hover:underline">모든 URL 주소 복사</button>
+                        <div class="flex items-center gap-3">
+                            <button onclick="copyAllUrls()" class="text-xs font-bold text-indigo-600 hover:underline">모든 URL 주소 복사</button>
+                            <span class="text-indigo-200">|</span>
+                            <button onclick="copyAllUrlsMarkdown()" class="text-xs font-bold text-indigo-600 hover:underline">모든 주소 마크다운으로 복사</button>
+                        </div>
                     </div>
                 </div>
                 
@@ -702,13 +706,57 @@
             document.getElementById('imageModal').classList.remove('hidden');
         }
 
+        function copyTextToClipboard(text, btn, successLabel, defaultLabel) {
+            function showSuccess() {
+                if (!btn) return;
+                btn.textContent = successLabel;
+                setTimeout(() => btn.textContent = defaultLabel, 2000);
+            }
+            function showFailure() {
+                if (!btn) return;
+                btn.textContent = "복사 실패 (콘솔 확인)";
+                setTimeout(() => btn.textContent = defaultLabel, 2000);
+            }
+            function fallbackCopy() {
+                try {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-9999px';
+                    textarea.style.top = '0';
+                    document.body.appendChild(textarea);
+                    textarea.focus();
+                    textarea.select();
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    if (ok) showSuccess(); else showFailure();
+                } catch (err) {
+                    console.error('복사 실패:', err);
+                    showFailure();
+                }
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(showSuccess).catch((err) => {
+                    console.warn('clipboard API 실패, 폴백 시도:', err);
+                    fallbackCopy();
+                });
+            } else {
+                fallbackCopy();
+            }
+        }
+
         function copyAllUrls() {
+            if (!generatedUrls.length) { alert('복사할 URL이 없습니다. 먼저 이미지를 불러와주세요.'); return; }
             const urls = generatedUrls.map(i => i.url).join('\n');
-            navigator.clipboard.writeText(urls).then(() => {
-                const btn = document.querySelector('[onclick="copyAllUrls()"]');
-                btn.textContent = "복사 완료!";
-                setTimeout(() => btn.textContent = "모든 URL 주소 복사", 2000);
-            });
+            const btn = document.querySelector('[onclick="copyAllUrls()"]');
+            copyTextToClipboard(urls, btn, "복사 완료!", "모든 URL 주소 복사");
+        }
+
+        function copyAllUrlsMarkdown() {
+            if (!generatedUrls.length) { alert('복사할 URL이 없습니다. 먼저 이미지를 불러와주세요.'); return; }
+            const urls = generatedUrls.map(i => `![](${i.url})`).join('\n');
+            const btn = document.querySelector('[onclick="copyAllUrlsMarkdown()"]');
+            copyTextToClipboard(urls, btn, "복사 완료!", "모든 주소 마크다운으로 복사");
         }
 
         let galleryObserver = null;
